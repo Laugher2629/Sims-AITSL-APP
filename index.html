@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+<title>Teaching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: same calm single column as the 托管板. Hub view = two big doors.
+   Standards view = filter chips (choose your own entry point), then one card per focus area
+   split into "What to do" / "How to check", with a status toggle and an evidence note. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --fg:#1d2733; --muted:#66737f; --line:#dde3e8;
+  --ink:#24507a; --accent:#e9a92a; --accent-bg:#fff6e2; --code:#eef2f6;
+  --s0:#9aa6b1; --s1:#d08a1e; --s2:#2f8a5b;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --surface:#1a2129; --fg:#e4e9ee; --muted:#93a0ac; --line:#2b3540;
+  --ink:#8bb8e3; --accent:#f0b84a; --accent-bg:#2a2414; --code:#222b35;
+  --s0:#6b7884; --s1:#f0b84a; --s2:#5fc08d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --surface:#1a2129; --fg:#e4e9ee; --muted:#93a0ac; --line:#2b3540;
+  --ink:#8bb8e3; --accent:#f0b84a; --accent-bg:#2a2414; --code:#222b35;
+  --s0:#6b7884; --s1:#f0b84a; --s2:#5fc08d; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.6}
+.wrap{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:18px 56px;display:flex;flex-direction:column;gap:18px}
+a{color:var(--ink)}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.top a{font-size:14px;text-decoration:none;white-space:nowrap}
+.top a:hover,.top a:focus-visible{text-decoration:underline}
+h1{font-size:22px;margin:0}
+.lead{margin:0;color:var(--muted);font-size:14px}
+.door{display:flex;justify-content:space-between;align-items:center;gap:14px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:18px 20px;text-decoration:none;color:var(--fg);cursor:pointer;text-align:left;font:inherit;width:100%}
+.door:hover,.door:focus-visible{border-color:var(--ink);outline:none}
+.door.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.door b{display:block;font-size:18px}
+.door small{display:block;font-size:13px;opacity:.85;margin-top:2px}
+.door .arrow{font-size:24px}
+.hidden{display:none!important}
+.summary{display:flex;gap:10px;flex-wrap:wrap}
+.pill{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:13px;color:var(--muted)}
+.pill b{font-family:var(--mono);font-size:18px;color:var(--fg);margin-right:4px;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:inherit;font-size:13px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:4px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.chip:focus-visible,.seg button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.std{display:flex;flex-direction:column;gap:10px}
+.std > h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 0}
+details.fa{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0}
+details.fa[open]{border-color:var(--ink)}
+details.fa summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+details.fa summary::-webkit-details-marker{display:none}
+.code{font-family:var(--mono);font-size:13px;color:var(--ink);min-width:34px;padding-top:1px}
+.fa-title{flex:1;min-width:0;font-weight:500}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:7px;flex:0 0 10px;background:var(--s0)}
+.dot.s1{background:var(--s1)} .dot.s2{background:var(--s2)}
+.body{padding:0 16px 16px;display:flex;flex-direction:column;gap:12px}
+.plain{margin:0;color:var(--muted);font-size:14px}
+.half{background:var(--code);border-radius:10px;padding:10px 14px}
+.half h3{margin:0 0 4px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.half ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.tool{font-size:14px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;width:fit-content;max-width:100%}
+.seg button{font:inherit;font-size:13px;background:var(--surface);color:var(--fg);border:0;border-right:1px solid var(--line);padding:6px 12px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+textarea{font:inherit;font-size:14px;width:100%;min-height:64px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--fg);box-sizing:border-box}
+label.lbl{font-size:13px;color:var(--muted)}
+.saved{font-size:12px;color:var(--muted)}
+.btn{font:inherit;font-size:14px;font-weight:500;border:0;border-radius:10px;padding:8px 14px;background:var(--ink);color:var(--surface);cursor:pointer}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.msg{color:var(--muted);font-size:13px}
+.lib form{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lib input,.lib select{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--fg);min-width:0}
+.lib form .wide{grid-column:1/-1}
+@media (max-width:520px){.lib form{grid-template-columns:1fr}}
+.res{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.res .tags{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.res button{font:inherit;font-size:12px;background:none;border:0;color:var(--muted);cursor:pointer}
+.note{background:var(--accent-bg);border:1px solid var(--accent);border-radius:12px;padding:10px 14px;font-size:14px}
+@media print{
+  body{background:#fff;color:#000}
+  .noprint,.chips,.summary,.top a,textarea,.seg{display:none!important}
+  details.fa{break-inside:avoid;border:1px solid #999}
+  details.fa .body{display:flex!important}
+  .printnote{display:block!important;white-space:pre-wrap;font-size:13px}
+}
+.printnote{display:none}
+/* ===== Game-style skin for the Standards view only (body.game) ===== */
+body.game{--g-ink:#17345c;--g-sub:#4d6a8c;--g-blue:#1f78d1;--g-green:#58c43f;--g-green-d:#3e9a2b;--g-empty:#d5e5f3;--g-panel:#ffffff;--g-edge:#bfe0f7;
+  background:linear-gradient(180deg,#8fdaf8 0%,#4aa8ea 45%,#2b74c7 100%) fixed;color:var(--g-ink);font-family:"Nunito","Noto Sans SC",system-ui,sans-serif;color-scheme:light}
+body.game #tool{gap:16px}
+body.game #tool a{color:var(--g-blue)}
+body.game .panel{background:var(--g-panel);border:3px solid #fff;border-radius:22px;box-shadow:0 5px 0 rgba(20,70,140,.35),inset 0 0 0 2px var(--g-edge);padding:16px 18px}
+body.game #tool .top{background:linear-gradient(180deg,#ffffff,#eaf6ff);border:3px solid #fff;border-radius:999px;box-shadow:0 5px 0 rgba(20,70,140,.35);padding:10px 20px;align-items:center}
+body.game #tool h1{font-weight:900;font-size:22px;color:var(--g-ink);letter-spacing:.01em}
+body.game #tool .lead{color:#0f2c52;background:rgba(255,255,255,.55);border-radius:16px;padding:10px 14px;font-weight:600}
+body.game .hud{display:flex;gap:16px;align-items:center}
+body.game .lvl{flex:0 0 74px;height:74px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b6f59c,#58c43f 55%,#2f8a1f);border:4px solid #fff;box-shadow:0 4px 0 rgba(20,70,140,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+body.game .lvl small{font-size:11px;font-weight:800;letter-spacing:.08em}
+body.game .lvl b{font-size:28px;font-weight:900;line-height:1}
+body.game .hud .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+body.game .hud .info strong{font-weight:900;font-size:16px}
+body.game .meter{height:16px;border-radius:999px;background:var(--g-empty);box-shadow:inset 0 2px 0 rgba(0,0,0,.08);overflow:hidden}
+body.game .meter i{display:block;height:100%;border-radius:999px;background:linear-gradient(180deg,#8be06e,#58c43f 60%,#3e9a2b);transition:width .4s}
+body.game .hud .stats{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--g-sub);font-weight:700}
+body.game .hud .stats b{color:var(--g-ink);font-variant-numeric:tabular-nums}
+body.game .summary{display:none}
+body.game .chips{gap:8px}
+body.game .chip{font-family:inherit;font-weight:800;background:#fff;color:var(--g-blue);border:3px solid #fff;box-shadow:0 3px 0 rgba(20,70,140,.35);padding:5px 14px}
+body.game .chip[aria-pressed="true"]{background:linear-gradient(180deg,#8be06e,#58c43f);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.2)}
+body.game .btn{font-family:inherit;font-weight:800;border-radius:999px;background:linear-gradient(180deg,#5bb2f5,#1f78d1);border:3px solid #fff;box-shadow:0 3px 0 rgba(20,70,140,.35)}
+body.game .btn.ghost{background:#fff;color:var(--g-blue)}
+body.game .msg{color:#0f2c52;font-weight:700}
+body.game .skill{display:flex;gap:12px;align-items:center;margin-top:10px}
+body.game .skill .ic{flex:0 0 46px;height:46px;border-radius:14px;background:linear-gradient(180deg,#5bb2f5,#1f78d1);border:3px solid #fff;color:#fff;font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 rgba(20,70,140,.35)}
+body.game .skill .sk{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+body.game .skill .sk span{font-weight:900;font-size:15px;color:#fff;text-shadow:0 2px 0 rgba(10,50,110,.4)}
+body.game .pips{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+body.game .pips i{height:12px;border-radius:4px;background:rgba(255,255,255,.55)}
+body.game .pips i.on{background:linear-gradient(180deg,#8be06e,#3e9a2b);box-shadow:0 0 0 2px #fff inset}
+body.game .skill .lv{font-weight:900;color:#fff;font-size:13px;background:rgba(10,50,110,.35);border-radius:999px;padding:3px 10px;white-space:nowrap}
+body.game .std > h2{display:none}
+body.game details.fa{background:var(--g-panel);border:3px solid #fff;border-radius:20px;box-shadow:0 4px 0 rgba(20,70,140,.35),inset 0 0 0 2px var(--g-edge)}
+body.game details.fa[open]{box-shadow:0 4px 0 rgba(20,70,140,.35),inset 0 0 0 2px #7cc6f2}
+body.game details.fa summary{align-items:center}
+body.game .code{font-family:inherit;font-weight:900;color:#fff;background:var(--g-blue);border-radius:999px;padding:2px 9px;min-width:0;font-size:13px}
+body.game .fa-title{font-weight:800;color:var(--g-ink)}
+body.game .mini{font-size:12px;font-weight:800;color:var(--g-sub);white-space:nowrap}
+body.game .dot{width:14px;height:14px;flex:0 0 14px;margin-top:0;border:2px solid #fff;box-shadow:0 1px 0 rgba(0,0,0,.2)}
+body.game .plain{color:var(--g-sub);font-weight:600}
+body.game .half{background:#eef7ff;border:2px solid var(--g-edge);border-radius:14px;color:var(--g-ink)}
+body.game .half h3{color:var(--g-blue);font-weight:900}
+body.game .checks{background:#f1fbe9;border:2px solid #cdeebd;border-radius:14px;padding:10px 14px}
+body.game .checks h3{margin:0 0 6px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--g-green-d);font-weight:900}
+.checks{display:flex;flex-direction:column;gap:4px}
+.checks h3{margin:0 0 4px;font-size:13px}
+.ck{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:14px;padding:3px 0}
+.ck input{appearance:none;flex:0 0 22px;width:22px;height:22px;margin:0;border-radius:7px;border:2.5px solid #58c43f;background:#fff;display:grid;place-content:center;cursor:pointer}
+.ck input:checked{background:linear-gradient(180deg,#8be06e,#3e9a2b);border-color:#3e9a2b}
+.ck input:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
+.ck input:focus-visible{outline:3px solid #f0b84a;outline-offset:2px}
+.ck.done span{color:#5c7a5a}
+body.game .seg{border:0;gap:6px;overflow:visible}
+body.game .seg button{font-family:inherit;font-weight:800;border:2px solid var(--g-edge);border-radius:999px;background:#fff;color:var(--g-sub)}
+body.game .seg button[aria-pressed="true"]{background:linear-gradient(180deg,#8be06e,#58c43f);border-color:#3e9a2b;color:#fff}
+body.game textarea{border:2px solid var(--g-edge);border-radius:14px;background:#fff;color:var(--g-ink)}
+body.game label.lbl,body.game .saved{color:var(--g-sub);font-weight:700}
+body.game .lib{background:var(--g-panel);border:3px solid #fff;border-radius:22px;box-shadow:0 5px 0 rgba(20,70,140,.35);padding:16px 18px}
+body.game .lib h2{display:block!important;color:var(--g-ink);font-weight:900;font-size:16px;letter-spacing:0;text-transform:none;margin:0}
+body.game .lib input,body.game .lib select{border:2px solid var(--g-edge);border-radius:12px;background:#fff;color:var(--g-ink)}
+body.game .res{border:2px solid var(--g-edge);border-radius:14px;background:#fff;color:var(--g-ink)}
+body.game .lib .chip{box-shadow:0 2px 0 rgba(20,70,140,.25);border-color:var(--g-edge)}
+@media (prefers-reduced-motion:reduce){body.game .meter i{transition:none}}
+
+</style>
+
+<div class="wrap">
+
+  <!-- HUB -->
+  <section id="hub" class="std" aria-labelledby="hubTitle">
+    <div class="top">
+      <h1 id="hubTitle">Teaching</h1>
+      
+    </div>
+    <p class="lead">两个入口：上课用的工具，和把 AITSL 标准讲清楚的工具。</p>
+    <a class="door" href="https://claude.ai/artifact/1egC8w3146GGihkkYF7mLU" target="_blank" rel="noopener">
+      <span><b>教学工具箱 Teaching Tool</b><small>议程、分层任务卡、Do Now、挑战阶梯、课堂流程</small></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+    <button class="door primary" type="button" id="openStd">
+      <span><b>Standards Made Explicit</b><small>AITSL Graduate 标准逐条拆成 What to do / How to check，可以和 ST 一起看</small></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </button>
+    <p class="note">Standards Made Explicit 来自我 EDST8040 Task 1 的设计：每条标准拆成「做什么」和「怎么检查」，自己选从哪里开始，不需要先披露任何信息，也不把 ND 特质写成弱点。</p>
+  </section>
+
+  <!-- STANDARDS TOOL -->
+  <section id="tool" class="std hidden" aria-labelledby="toolTitle">
+    <div class="top">
+      <h1 id="toolTitle">Standards Made Explicit</h1>
+      <a href="#" id="back">← Teaching</a>
+    </div>
+    <p class="lead">Each AITSL Graduate focus area, made explicit. Start anywhere. "What to do" is how you build the skill; "How to check" is the evidence anyone can see. Wording is a plain-language summary; the official descriptors are at <a href="https://www.aitsl.edu.au/standards" target="_blank" rel="noopener">aitsl.edu.au/standards</a>.</p>
+
+    <div class="panel hud" aria-live="polite">
+      <div class="lvl" aria-hidden="true"><small>LEVEL</small><b id="hLvl">0</b></div>
+      <div class="info">
+        <strong id="hTitle">Teacher in training</strong>
+        <div class="meter" role="progressbar" aria-label="Checklist progress" aria-valuemin="0" aria-valuemax="100" id="hMeter"><i id="hBar" style="width:0%"></i></div>
+        <div class="stats"><span><b id="hChecks">0</b> checks done</span><span><b id="hEv">0</b> evidence ready</span><span><b id="hWk">0</b> working on it</span></div>
+      </div>
+    </div>
+    <div class="summary" aria-live="polite">
+      <span class="pill"><b id="cEvid">0</b>evidence ready</span>
+      <span class="pill"><b id="cWork">0</b>working on it</span>
+      <span class="pill"><b id="cTotal">37</b>focus areas</span>
+    </div>
+
+    <div class="chips" role="group" aria-label="Show standard">
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+    </div>
+    <div class="chips" role="group" aria-label="Show status">
+      <button class="chip" data-s="any" aria-pressed="true">Any status</button>
+      <button class="chip" data-s="0" aria-pressed="false">Not started</button>
+      <button class="chip" data-s="1" aria-pressed="false">Working on it</button>
+      <button class="chip" data-s="2" aria-pressed="false">Evidence ready</button>
+    </div>
+
+    <div class="row noprint">
+      <button class="btn ghost" type="button" id="expand">Open all</button>
+      <button class="btn ghost" type="button" id="printBtn">Print for my ST</button>
+      <button class="btn ghost" type="button" id="exportBtn">Export my progress</button>
+      <label class="btn ghost" style="cursor:pointer">Import<input type="file" id="importFile" accept="application/json" hidden></label>
+      <span class="msg" id="dbMsg"></span>
+    </div>
+
+    <div id="list"></div>
+
+    <section class="std lib noprint" aria-labelledby="libTitle">
+      <h2 id="libTitle">Resource library (3.4)</h2>
+      <form id="resForm">
+        <input id="rTitle" placeholder="Resource name" required>
+        <input id="rLink" placeholder="Link (optional)" type="url">
+        <input id="rSubject" placeholder="Subject, e.g. Computing" required>
+        <select id="rStd" aria-label="Related focus area"></select>
+        <button class="btn wide" type="submit">Add resource</button>
+      </form>
+      <div class="chips" id="subChips" role="group" aria-label="Filter by subject"></div>
+      <div id="resList" class="std"></div>
+    </section>
+  </section>
+</div>
+
+<script>
+/* Standalone mode: when not running inside claude.ai, keep data in this browser (localStorage). */
+(function(){
+  if(window.claude&&window.claude.use) return;
+  const KEY="sme-data-v1"; let store={}; const subs=[];
+  try{store=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){store={}}
+  const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){} subs.forEach(f=>f())};
+  const snap=(col,ord)=>{let docs=Object.entries(store[col]||{}).map(([id,d])=>({id,exists:true,data:()=>d}));
+    if(ord){docs.sort((a,b)=>{const x=a.data()[ord.f],y=b.data()[ord.f];return (x>y?1:x<y?-1:0)*(ord.d==="desc"?-1:1)})}
+    return {docs,size:docs.length,empty:!docs.length}};
+  const docRef=(col,id)=>({id,set:async d=>{(store[col]=store[col]||{})[id]=JSON.parse(JSON.stringify(d));persist()},
+    delete:async()=>{if(store[col]){delete store[col][id];persist()}}});
+  const colRef=(col,ord)=>({doc:id=>docRef(col,id||Math.random().toString(36).slice(2,12)),
+    add:async d=>{const id=Math.random().toString(36).slice(2,12);await docRef(col,id).set(d);return docRef(col,id)},
+    orderBy:(f,d)=>colRef(col,{f,d}),
+    onSnapshot:next=>{const fire=()=>next(snap(col,ord));subs.push(fire);setTimeout(fire,0);return()=>{}}});
+  const db={collection:p=>colRef(p),doc:p=>{const [c,i]=p.split("/");return docRef(c,i)}};
+  window.claude={use:async n=>n==="db"?db:null};
+  window.__smeExport=()=>JSON.stringify(store,null,2);
+  window.__smeImport=t=>{store=JSON.parse(t);persist()};
+})();
+</script>
+<script>
+const T="https://claude.ai/artifact/1egC8w3146GGihkkYF7mLU";
+const STD=[
+ ["1","Know students and how they learn",[
+  ["1.1","Students' physical, social and intellectual development","Know how development shapes the way students learn.",
+   ["Read the class profile and talk to the ST about the class before teaching it","Note how students of this age respond to different task lengths and group sizes"],
+   ["A lesson plan that names a development-based choice (e.g. chunked tasks)","Observation notes linking a student response to that choice"]],
+  ["1.2","Understand how students learn","Use what research says about learning when you plan.",
+   ["Pick one learning principle (e.g. worked examples, retrieval practice) and build it into a lesson","Explain the reason in the lesson plan rationale"],
+   ["Students complete the retrieval or practice task","Your evaluation says whether it helped, with student work as proof"],T],
+  ["1.3","Students with diverse linguistic, cultural, religious and socioeconomic backgrounds","Plan for the range of backgrounds in the room.",
+   ["Find out the EAL/D and cultural profile of the class","Add key-term lists, visuals or sentence starters"],
+   ["A resource with vocabulary support","An EAL/D student completes the task using that support"]],
+  ["1.4","Strategies for teaching Aboriginal and Torres Strait Islander students","Know culturally responsive strategies.",
+   ["Ask the school about its Aboriginal education contacts and strategies","Use a strategy such as yarning circles or connecting content to Country where appropriate"],
+   ["A lesson plan naming the strategy","Notes from a conversation with school staff"]],
+  ["1.5","Differentiate teaching for the full range of abilities","Plan different paths through the same lesson.",
+   ["Write a task with support, core and extension levels","Use a challenge ladder for fast finishers"],
+   ["Different students complete different levels of the same task","Work samples from at least two levels"],T],
+  ["1.6","Support full participation of students with disability","Know the adjustments that let every student take part.",
+   ["Read the learning support plans for your class with the ST","Plan one adjustment (extra time, chunked steps, alternative format)"],
+   ["The adjustment appears in your lesson plan","The student participates in the task"]]]],
+ ["2","Know the content and how to teach it",[
+  ["2.1","Content and teaching strategies of the teaching area","Know the subject and the ways it is usually taught.",
+   ["Work through the content yourself before teaching it","Choose a strategy suited to the subject (e.g. live modelling for software skills)"],
+   ["Accurate explanations and answers to student questions","ST feedback on content knowledge"]],
+  ["2.2","Content selection and organisation","Order content so it builds logically.",
+   ["Sequence a lesson from simple to complex","Link each lesson to the previous and next one"],
+   ["A lesson sequence with clear steps","Students can explain how today links to last lesson"]],
+  ["2.3","Curriculum, assessment and reporting","Link lessons to syllabus outcomes and assessment.",
+   ["Write syllabus outcome codes on every lesson plan","Check how the lesson prepares for the assessment task"],
+   ["Outcome codes on lesson plans","Students can name what the task assesses"]],
+  ["2.4","Understand and respect Aboriginal and Torres Strait Islander people, cultures and languages","Show respect and promote reconciliation through the curriculum.",
+   ["Find a respectful, authentic link in your subject (e.g. Indigenous knowledge in data or design)","Use local protocols the school follows"],
+   ["A lesson or resource with an authentic connection","Notes on the protocols you used"]],
+  ["2.5","Literacy and numeracy strategies","Teach the reading, writing and maths demands of your subject.",
+   ["Pre-teach subject vocabulary","Model how to read a question or a formula"],
+   ["A vocabulary or modelling resource","Student writing that uses the subject terms correctly"]],
+  ["2.6","Information and communication technology (ICT)","Use ICT to improve learning.",
+   ["Use a digital tool with a clear learning purpose (e.g. Kahoot for retrieval)","Plan a backup in case the technology fails"],
+   ["Quiz report or student digital work","Your evaluation of what the tool added"]]]],
+ ["3","Plan for and implement effective teaching and learning",[
+  ["3.1","Establish challenging learning goals","Set goals that stretch every student.",
+   ["Write a learning intention and success criteria for each lesson","Add a stretch goal for students who finish early"],
+   ["Learning intention visible on the board","Students can say what success looks like"],T],
+  ["3.2","Plan, structure and sequence learning programs","Plan lessons with a clear structure and timing.",
+   ["Use the lesson plan template: introduction, body, conclusion, with timings","Send plans to the ST 24 hours ahead"],
+   ["Completed lesson plans","ST feedback on planning, and your changes in response"],T],
+  ["3.3","Use teaching strategies","Use a range of strategies that suit the content and class.",
+   ["Plan at least two strategies in a lesson (e.g. modelling, then guided practice)","Note why each strategy was chosen"],
+   ["Strategies named in the plan","Observation feedback on how they worked"]],
+  ["3.4","Select and use resources","Choose resources that support the learning goal.",
+   ["Keep a subject-tagged resource library (below)","Check each resource for accuracy and accessibility"],
+   ["Resources attached to lesson plans","Students use the resource to complete the task"]],
+  ["3.5","Use effective classroom communication","Give instructions and explanations students can act on.",
+   ["Give instructions one step at a time, and show them on screen","Check understanding before students start"],
+   ["Students start the task without repeated questions","ST feedback on clarity"],T],
+  ["3.6","Evaluate and improve teaching programs","Use evidence to improve your lessons.",
+   ["Complete the self-evaluation after every lesson","Change one thing in the next lesson based on it"],
+   ["Written evaluations","A later plan that shows the change"]],
+  ["3.7","Engage parents and carers in the educative process","Know ways to involve families in learning.",
+   ["Ask the ST how the school communicates with families","Draft a short note or newsletter item about the unit"],
+   ["A draft communication","Notes on school processes for contacting families"]]]],
+ ["4","Create and maintain supportive and safe learning environments",[
+  ["4.1","Support student participation","Help every student take part.",
+   ["Use routines that get everyone started (e.g. a Do Now)","Use strategies such as think-pair-share or cold calling with wait time"],
+   ["Most students begin the task within two minutes","A participation tally from one lesson"],T],
+  ["4.2","Manage classroom activities","Run activities smoothly with clear routines.",
+   ["Use the ST's attention signal and routines","Give time limits and a visible timer for tasks"],
+   ["Transitions take less time","ST feedback on lesson flow"],T],
+  ["4.3","Manage challenging behaviour","Respond to behaviour calmly and consistently.",
+   ["Learn the school's behaviour policy and steps","Plan what you will say for the most likely behaviours"],
+   ["Behaviour handled using school steps","Notes on what worked"]],
+  ["4.4","Maintain student safety","Keep students safe and follow duty of care.",
+   ["Learn the school's safety, evacuation and child protection procedures","Check equipment and room hazards before practical lessons"],
+   ["A completed safety check or risk note","ST confirms procedures were followed"]],
+  ["4.5","Use ICT safely, responsibly and ethically","Teach and model safe use of technology.",
+   ["Follow the school's ICT and privacy rules","Teach one digital citizenship point in context (e.g. passwords, copyright)"],
+   ["Students follow the rule during the lesson","A resource or slide on safe ICT use"]]]],
+ ["5","Assess, provide feedback and report on student learning",[
+  ["5.1","Assess student learning","Use diagnostic, formative and summative assessment.",
+   ["Plan a check for understanding in every lesson (exit ticket, quiz, mini whiteboards)","Record the results"],
+   ["Exit tickets or quiz reports","A note on what the results showed"]],
+  ["5.2","Provide feedback to students on their learning","Give timely feedback students can use.",
+   ["Give feedback that names what is done well and one next step","Give students time to act on it"],
+   ["Annotated work samples","Students' improved work after feedback"]],
+  ["5.3","Make consistent and comparable judgements","Mark fairly against criteria.",
+   ["Mark a few samples alongside the ST","Use the marking criteria or rubric every time"],
+   ["Your marks match the ST's on shared samples","Notes from the moderation conversation"]],
+  ["5.4","Interpret student data","Use data to see what students need next.",
+   ["Look for patterns in quiz or task results","Decide which concept to reteach"],
+   ["A short analysis of results","A later lesson that reteaches the weak area"]],
+  ["5.5","Report on student achievement","Know how the school reports to students and families.",
+   ["Ask the ST how reports and grades are written","Practise writing one report-style comment"],
+   ["A sample comment","Notes on the school's reporting process"]]]],
+ ["6","Engage in professional learning",[
+  ["6.1","Identify and plan professional learning needs","Know your own learning goals as a teacher.",
+   ["Set one or two professional goals using the Standards","Review them midway through placement"],
+   ["Written goals","A midway review"]],
+  ["6.2","Engage in professional learning and improve practice","Learn actively and use it.",
+   ["Attend a staff meeting, PD session or read one relevant article","Apply one idea in a lesson"],
+   ["Notes from the learning","A lesson that uses the idea"]],
+  ["6.3","Engage with colleagues and improve practice","Seek and use feedback from colleagues.",
+   ["Ask the ST for feedback on one specific area each week","Write down the feedback and your response"],
+   ["Feedback log","Changes made in response"]],
+  ["6.4","Apply professional learning and improve student learning","Show how your learning helps students.",
+   ["Connect a change in your teaching to a change in student results","Reflect on the link"],
+   ["Before and after student work or data","A short reflection"]]]],
+ ["7","Engage professionally with colleagues, parents/carers and the community",[
+  ["7.1","Meet professional ethics and responsibilities","Act ethically and professionally.",
+   ["Read the teacher code of conduct","Keep student information confidential (de-identify all evidence)"],
+   ["De-identified ePortfolio evidence","ST confirms professional conduct"]],
+  ["7.2","Comply with legislative, administrative and organisational requirements","Follow laws and school policies.",
+   ["Keep your WWCC and placement paperwork current","Follow school policies on attendance, communication and duty of care"],
+   ["Paperwork completed on time","Notes on key school policies"]],
+  ["7.3","Engage with parents and carers","Communicate with families respectfully.",
+   ["Ask the ST before contacting any family","Observe a parent communication if possible"],
+   ["Notes on how the school works with families","A draft communication reviewed by the ST"]],
+  ["7.4","Engage with professional teaching networks and broader communities","Connect with the wider profession.",
+   ["Find a subject association or network for your teaching area","Join or follow one"],
+   ["Membership or a saved resource from the network","A note on how it supports your teaching"]]]]
+];
+const ALL=[];STD.forEach(([n,t,fas])=>fas.forEach(f=>ALL.push({std:n,stdTitle:t,code:f[0],title:f[1],plain:f[2],todo:f[3],check:f[4],tool:f[5]})));
+const CL={
+"1.1":["I wrote three facts about this class on one card before the first lesson","I asked the ST one specific question about the class instead of guessing","I noticed when students drifted and wrote down what was happening at that moment"],
+"1.2":["I can explain in one sentence why my lesson is ordered the way it is","I tried one research-based strategy and wrote what actually happened","I kept the rationale short enough to fit on the lesson plan"],
+"1.3":["I prepared a key-word list before the lesson, not during it","I checked one student's understanding of the instructions privately","I used a visual alongside every new term"],
+"1.4":["I asked the school who to talk to, and wrote down the name","I checked the protocol before using any cultural content","I planned the strategy in advance instead of improvising it"],
+"1.5":["My task card has three levels written out before class","I prepared a challenge for fast finishers so I am not inventing one on the spot","I checked in with one student who needed support before helping fast finishers"],
+"1.6":["I read the support plans with the ST and wrote one adjustment per student","The adjustment is in my lesson plan, not only in my head","I checked after the lesson whether the adjustment worked"],
+"2.1":["I did the task myself before teaching it","I wrote down the two questions students are most likely to ask","I checked one fact I was unsure of instead of explaining around it"],
+"2.2":["My lesson goes from simple to complex in clear steps","I wrote the link to last lesson at the top of the plan","I cut one extra idea that did not serve the learning intention"],
+"2.3":["The outcome code is on the plan","I can say how this lesson feeds the assessment task","I checked the assessment notification date and put it in my calendar"],
+"2.4":["I chose a respectful connection and checked it with a staff member","I used the school's protocols","I avoided adding content I could not verify"],
+"2.5":["I pre-taught the subject words","I modelled how to read one question aloud","I gave sentence starters for written answers"],
+"2.6":["I tested the technology before the lesson","I had a backup if it failed","I can say what the tool added to learning, not only to engagement"],
+"3.1":["The learning intention is on the board before students arrive","Success criteria are written as things students can see themselves doing","There is a stretch goal ready"],
+"3.2":["Every section of the plan has a time next to it","The plan reached the ST at least 24 hours ahead","I set a reminder for the next plan's deadline"],
+"3.3":["I planned two different strategies in this lesson","I wrote why each one fits","I used a timer to keep each section to time"],
+"3.4":["I saved the resource to my library with a subject tag","I checked the resource for accuracy and accessibility","I can find it again in under a minute"],
+"3.5":["I gave instructions one step at a time","The steps were visible on screen while students worked","I checked understanding before saying 'start'"],
+"3.6":["I wrote the self-evaluation within 24 hours","I chose one specific thing to change next time","I wrote down what evidence told me to change it"],
+"3.7":["I asked the ST how the school contacts families","I drafted one short, warm message","The ST reviewed it before anything was sent"],
+"4.1":["A Do Now was on screen when students walked in","I used wait time after asking a question","I greeted students by name at the door"],
+"4.2":["I used the ST's attention signal, not a new one","Every activity had a visible time limit","Materials were ready before the lesson started"],
+"4.3":["I know the school's behaviour steps by heart","I planned what to say for the most likely behaviour","I stayed calm and used the same words each time"],
+"4.4":["I checked the room for hazards before a practical task","I know the evacuation route for this room","I followed the school's duty of care steps"],
+"4.5":["I modelled one safe ICT habit in the lesson","I followed the school's privacy rules with student work","I named the reason for the rule, not only the rule"],
+"5.1":["Every lesson has a planned check for understanding","I recorded the results somewhere I can find them","I looked at the results before planning the next lesson"],
+"5.2":["My feedback names one strength and one next step","I wrote feedback in words a student can act on","Students had time in class to use the feedback"],
+"5.3":["I marked samples alongside the ST","I used the rubric every time","I wrote down where our marks differed and why"],
+"5.4":["I found one pattern in the class results","I chose which concept to reteach based on it","I can show the data that led to that choice"],
+"5.5":["I asked the ST how reports are written","I wrote one practice report comment","The comment describes learning, not personality"],
+"6.1":["I wrote one or two professional goals","Each goal has a way to check it","I reviewed the goals halfway through"],
+"6.2":["I went to one staff meeting or PD session","I wrote one idea from it","I tried that idea in a lesson"],
+"6.3":["I asked the ST for feedback on one specific thing","I wrote the feedback down straight away","I replied with what I would change"],
+"6.4":["I linked a change in my teaching to a change in student work","I kept the before and after evidence","I wrote a short reflection on the link"],
+"7.1":["All evidence in my ePortfolio is de-identified","I know where the code of conduct is","I kept student information inside school systems"],
+"7.2":["My WWCC and placement forms are current","Key deadlines are in my calendar with reminders","I know the attendance and absence process"],
+"7.3":["I checked with the ST before contacting a family","I observed how the ST talks with families","My tone in written messages is warm and clear"],
+"7.4":["I found the subject association for my teaching area","I followed or joined it","I saved one resource from it to my library"]
+};
+
+const LABEL=["Not started","Working on it","Evidence ready"];
+const RANKS=["Teacher in training","Classroom rookie","Planner","Confident presenter","Feedback finder","Steady practitioner","Skilled teacher","Reflective teacher","Expert in the making","Classroom leader","Graduate ready"];
+
+const $=s=>document.querySelector(s);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+let db=null, progress={}, resources=[], fStd="all", fStat="any", subFilter="all";
+
+/* views */
+function show(v){ document.body.classList.toggle("game",v==="tool"); $("#hub").classList.toggle("hidden",v!=="tool"?false:true); $("#tool").classList.toggle("hidden",v!=="tool"); window.scrollTo(0,0); }
+$("#openStd").addEventListener("click",()=>{location.hash="standards"});
+$("#back").addEventListener("click",e=>{e.preventDefault();location.hash=""});
+function route(){ show(location.hash==="#standards"?"tool":"hub") }
+window.addEventListener("hashchange",route); route();
+
+/* chips */
+const stdChips=$(".chips[aria-label='Show standard']");
+STD.forEach(([n,t])=>{const b=el("button","chip","Std "+n);b.dataset.f=n;b.title=t;b.setAttribute("aria-pressed","false");stdChips.append(b)});
+stdChips.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;fStd=b.dataset.f;stdChips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===b));render()});
+const statChips=$(".chips[aria-label='Show status']");
+statChips.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;fStat=b.dataset.s;statChips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===b));render()});
+
+const idOf=code=>"f"+code.replace(".","-");
+const statusOf=code=>(progress[idOf(code)]||{}).status||0;
+const checksOf=code=>{const c=(progress[idOf(code)]||{}).checks;const n=(CL[code]||[]).length;return Array.from({length:n},(_,i)=>!!(c&&c[i]))};
+const openSet=new Set();
+
+function render(){
+  const list=$("#list"); list.textContent="";
+  let ev=0,wk=0; ALL.forEach(f=>{const s=statusOf(f.code); if(s===2)ev++; else if(s===1)wk++});
+  $("#cEvid").textContent=ev; $("#cWork").textContent=wk; $("#cTotal").textContent=ALL.length;
+  let tot=0,dn=0; ALL.forEach(f=>{const c=CL[f.code]||[];tot+=c.length;dn+=checksOf(f.code).filter(Boolean).length});
+  const pct=tot?Math.round(100*dn/tot):0, lv=Math.floor(10*dn/(tot||1));
+  $("#hLvl").textContent=lv; $("#hTitle").textContent=RANKS[lv]; $("#hBar").style.width=pct+"%"; $("#hMeter").setAttribute("aria-valuenow",pct);
+  $("#hChecks").textContent=dn+"/"+tot; $("#hEv").textContent=ev; $("#hWk").textContent=wk;
+  STD.forEach(([n,t])=>{
+    if(fStd!=="all"&&fStd!==n)return;
+    const items=ALL.filter(f=>f.std===n&&(fStat==="any"||String(statusOf(f.code))===fStat));
+    if(!items.length)return;
+    const sec=el("section","std"); sec.append(el("h2",null,"Standard "+n+" · "+t));
+    let st=0,sd=0; ALL.filter(f=>f.std===n).forEach(f=>{st+=(CL[f.code]||[]).length;sd+=checksOf(f.code).filter(Boolean).length});
+    const slv=Math.floor(10*sd/(st||1));
+    const sk=el("div","skill"); const ic=el("div","ic",n); ic.setAttribute("aria-hidden","true");
+    const mid=el("div","sk"); mid.append(el("span",null,t)); const pips=el("div","pips"); pips.setAttribute("aria-hidden","true");
+    for(let i=0;i<10;i++){const p=el("i");if(i<slv)p.className="on";pips.append(p)} mid.append(pips);
+    const lvb=el("span","lv","Lv "+slv+"/10"); lvb.setAttribute("aria-label","Standard "+n+" level "+slv+" of 10");
+    sk.append(ic,mid,lvb); sec.append(sk);
+    items.forEach(f=>sec.append(card(f))); list.append(sec);
+  });
+  if(!list.children.length) list.append(el("p","msg","Nothing matches these filters."));
+}
+
+function card(f){
+  const id=idOf(f.code), p=progress[id]||{}, s=p.status||0;
+  const d=el("details","fa"); if(openSet.has(id))d.open=true;
+  d.addEventListener("toggle",()=>{d.open?openSet.add(id):openSet.delete(id)});
+  const sm=el("summary"); sm.append(el("span","code",f.code),el("span","fa-title",f.title));
+  const cks=checksOf(f.code); sm.append(el("span","mini",cks.filter(Boolean).length+"/"+cks.length));
+  const dot=el("span","dot s"+s); dot.title=LABEL[s]; dot.setAttribute("aria-label",LABEL[s]); sm.append(dot);
+  const b=el("div","body");
+  b.append(el("p","plain",f.plain));
+  const h1=el("div","half"); h1.append(el("h3",null,"What to do")); const u1=el("ul"); f.todo.forEach(x=>u1.append(el("li",null,x))); h1.append(u1);
+  const h2=el("div","half"); h2.append(el("h3",null,"How to check")); const u2=el("ul"); f.check.forEach(x=>u2.append(el("li",null,x))); h2.append(u2);
+  b.append(h1,h2);
+  const cl=el("div","checks"); cl.append(el("h3",null,"Checklist"));
+  (CL[f.code]||[]).forEach((txt,i)=>{const lab=el("label","ck"+(cks[i]?" done":""));const cb=el("input");cb.type="checkbox";cb.checked=cks[i];
+    cb.addEventListener("change",()=>{const arr=checksOf(f.code);arr[i]=cb.checked;save(id,{checks:arr})});lab.append(cb,el("span",null,txt));cl.append(lab)});
+  b.append(cl);
+  if(f.tool){const a=el("a","tool","Open the matching tool in Teaching Tool →");a.href=f.tool;a.target="_blank";a.rel="noopener";b.append(a)}
+  if(f.code==="3.4"){const a=el("a","tool","Go to the resource library ↓");a.href="#libTitle";a.addEventListener("click",e=>{e.preventDefault();$("#libTitle").scrollIntoView()});b.append(a)}
+  const seg=el("div","seg"); seg.setAttribute("role","group"); seg.setAttribute("aria-label","Status for "+f.code);
+  LABEL.forEach((l,i)=>{const bt=el("button",null,l);bt.type="button";bt.setAttribute("aria-pressed",i===s);bt.addEventListener("click",()=>save(id,{status:i}));seg.append(bt)});
+  b.append(seg);
+  const lb=el("label","lbl","My evidence / notes (what I did, where the proof is)"); lb.htmlFor="ta-"+id;
+  const ta=el("textarea"); ta.id="ta-"+id; ta.value=p.note||""; ta.placeholder="e.g. Week 3 Access lesson: Kahoot report shows 80% correct on keys";
+  const st=el("span","saved");
+  ta.addEventListener("blur",()=>{ if((p.note||"")!==ta.value){ save(id,{note:ta.value}).then(ok=>{st.textContent=ok?"Saved":"Not saved"}) } });
+  const pn=el("div","printnote",(LABEL[s])+(p.note?"\n"+p.note:""));
+  b.append(lb,ta,st,pn);
+  d.append(sm,b); return d;
+}
+
+async function save(id,patch){
+  if(!db){ $("#dbMsg").textContent="Saving needs you to be signed in to claude.ai."; return false }
+  const cur=progress[id]||{}; const next={status:cur.status||0,note:cur.note||"",checks:cur.checks||[],...patch};
+  progress[id]=next; render();
+  try{ await db.doc("progress/"+id).set(next); return true }catch(e){ $("#dbMsg").textContent="Could not save just now."; return false }
+}
+
+$("#expand").addEventListener("click",()=>{const all=[...document.querySelectorAll("details.fa")];const open=all.some(d=>!d.open);all.forEach(d=>d.open=open);$("#expand").textContent=open?"Close all":"Open all"});
+$("#printBtn").addEventListener("click",()=>{document.querySelectorAll("details.fa").forEach(d=>d.open=true);window.print()});
+
+/* resource library */
+const sel=$("#rStd"); sel.append(new Option("Related focus area (optional)",""));
+ALL.forEach(f=>sel.append(new Option(f.code+" "+f.title,f.code)));
+function renderRes(){
+  const subs=[...new Set(resources.map(r=>r.subject).filter(Boolean))].sort();
+  const sc=$("#subChips"); sc.textContent="";
+  if(subs.length){ ["all",...subs].forEach(s=>{const b=el("button","chip",s==="all"?"All subjects":s);b.setAttribute("aria-pressed",subFilter===s);b.addEventListener("click",()=>{subFilter=s;renderRes()});sc.append(b)}) }
+  const rl=$("#resList"); rl.textContent="";
+  const items=resources.filter(r=>subFilter==="all"||r.subject===subFilter);
+  if(!items.length){ rl.append(el("p","msg",db?"No resources yet. Add the first one above.":"Sign in to claude.ai to keep a resource library.")); return }
+  items.forEach(r=>{
+    const row=el("div","res"); const left=el("div");
+    if(r.link){const a=el("a",null,r.title);a.href=r.link;a.target="_blank";a.rel="noopener";left.append(a)} else left.append(el("span",null,r.title));
+    left.append(el("div","tags",r.subject+(r.std?" · "+r.std:"")));
+    const del=el("button",null,"Remove"); del.type="button"; del.addEventListener("click",async()=>{try{await db.doc("resources/"+r.id).delete()}catch(e){}});
+    row.append(left,del); rl.append(row);
+  });
+}
+$("#resForm").addEventListener("submit",async e=>{
+  e.preventDefault(); if(!db){$("#dbMsg").textContent="Saving needs you to be signed in to claude.ai.";return}
+  const r={title:$("#rTitle").value.trim(),link:$("#rLink").value.trim(),subject:$("#rSubject").value.trim(),std:$("#rStd").value,added:Date.now()};
+  if(!r.title||!r.subject)return;
+  try{await db.collection("resources").add(r);$("#rTitle").value="";$("#rLink").value=""}catch(err){$("#dbMsg").textContent="Could not add the resource."}
+});
+
+render(); renderRes();
+document.getElementById("exportBtn").addEventListener("click",()=>{if(!window.__smeExport)return;const b=new Blob([window.__smeExport()],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="standards-progress.json";a.click();});
+document.getElementById("importFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f||!window.__smeImport)return;f.text().then(t=>{try{window.__smeImport(t);$("#dbMsg").textContent="Imported."}catch(err){$("#dbMsg").textContent="That file could not be read."}})});
+(async()=>{
+  db=await window.claude?.use?.("db") ?? null;
+  if(!db){ $("#dbMsg").textContent="Could not open storage."; return }
+  db.collection("progress").onSnapshot(s=>{progress={};s.docs.forEach(d=>progress[d.id]=d.data());render()},()=>{});
+  db.collection("resources").orderBy("added","desc").onSnapshot(s=>{resources=s.docs.map(d=>({id:d.id,...d.data()}));renderRes()},()=>{});
+})();
+</script>
+
+</body>
+</html>
